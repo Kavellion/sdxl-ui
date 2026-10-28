@@ -6,6 +6,22 @@ SDXL is the bigger, sharper successor to SD 1.5 — native 1024×1024 pictures, 
 
 **Status: code-verified build.** This package has passed its full stub-test suite (UI construction, sampler mapping, the SDXL two-encoder prompt-weighting and blending maths, keyframe parsing, end-to-end generate flows against a stub pipeline). It has **not yet had its first picture on a real PC** — that proof comes from a fresh-folder install, and this page will be updated when it lands.
 
+![SDXL UI](ui-screenshot.png)
+
+## Example output
+
+![First picture — red fox in a sunflower field](example-fox.png)
+
+*First picture from the published build: frame 000001, 1024x1024, 25 steps, CFG 7, seed 148622791.*
+
+![Porcelain series 1](render-000013.jpg)
+
+![Porcelain series 2](render-000010.jpg)
+
+![Porcelain series 3](render-000007.jpg)
+
+*From the first batch: the porcelain series — 832x1216, DPM++ 2M Karras, 60 steps, CFG 7.*
+
 ## What it does
 
 **Model controls (top of the page, A1111-style)**
