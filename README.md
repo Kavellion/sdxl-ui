@@ -4,23 +4,7 @@
 
 SDXL is the bigger, sharper successor to SD 1.5 — native 1024×1024 pictures, much better prompt following, and its own large ecosystem of checkpoints and LoRAs. This app wraps it in the same plain shape as Kandinsky UI, Sana UI, Z-Image UI and SD 1.5 UI (run it, a page opens in your browser, type a prompt, pictures appear), with the **full SD 1.5 UI feature set** carried over and adapted to SDXL underneath. Simple on the surface, everything underneath, clean looking.
 
-**Status: code-verified build.** This package has passed its full stub-test suite (UI construction, sampler mapping, the SDXL two-encoder prompt-weighting and blending maths, keyframe parsing, end-to-end generate flows against a stub pipeline). It has **not yet had its first picture on a real PC** — that proof comes from a fresh-folder install, and this page will be updated when it lands.
-
-![SDXL UI](ui-screenshot.png)
-
-## Example output
-
-![First picture — red fox in a sunflower field](example-fox.png)
-
-*First picture from the published build: frame 000001, 1024x1024, 25 steps, CFG 7, seed 148622791.*
-
-![Porcelain series 1](render-000013.jpg)
-
-![Porcelain series 2](render-000010.jpg)
-
-![Porcelain series 3](render-000007.jpg)
-
-*From the first batch: the porcelain series — 832x1216, DPM++ 2M Karras, 60 steps, CFG 7.*
+**Status: PC-proven.** First picture from a fresh-folder install on Oct 28, 2026 (a red fox in a sunflower field, 1024×1024), and the LoRA slots were proven on Oct 29, 2026 — see the LoRAs section below. The package has also passed its full stub-test suite (UI construction, sampler mapping, the SDXL two-encoder prompt-weighting and blending maths, keyframe parsing, end-to-end generate flows against a stub pipeline).
 
 ## What it does
 
@@ -47,6 +31,20 @@ Format notes:
 - A file that doesn't load — wrong format, an SD 1.5 embedding, a name that collides with a built-in tokenizer word — is **reported in the status line, not fatal**: the run continues without it.
 - Embeddings apply to every tab (they live on the shared model), re-apply cleanly when the checkpoint changes, and are gone after **Unload models**.
 
+## LoRAs
+
+Two LoRA slots, each with its own weight slider (0–1.5):
+
+1. Drop SDXL LoRA files (`.safetensors`) into the `loras/` folder and hit **Refresh list**.
+2. Pick a file in each slot and set its weight. Both slots apply together, on every tab.
+
+**Status: PC-proven (Oct 29, 2026).** Proof pair, prompt `a cat in szn style`, seed 12345: the LoRA `pytorch_lora_weights.safetensors` from DmitryNvm/sdxl-lora-dreambooth-style at weight 0.8 gave a stylized 3D character; with LoRA set to None, the same prompt and seed gave a flat illustrated cat — the slots load and apply for real.
+
+Format notes:
+
+- Some LoRAs are **UNet-only** (the proof file above is one — it was trained with the text-encoder LoRA disabled). With a file like that, the terminal prints "No LoRA keys" warnings for the two CLIP text encoders. That is expected and harmless: there is simply nothing in the file for the encoders to load, and the UNet part applies normally.
+- **Updating an existing install for LoRA support:** the slots need the `peft` package, which arrives via `requirements.txt`. Replace the app's `requirements.txt` with the one from this release — the file must end up named exactly `requirements.txt`, sitting where the old one was — then run **install.bat** once.
+
 **Text to image**
 
 - Prompt + negative prompt (default negative: `low quality, bad quality`), size presets (Square 1024×1024 / Portrait 832×1216 / Landscape 1216×832 / Wide 1344×768 / Tall 768×1344) plus width/height sliders up to 2048.
@@ -68,7 +66,7 @@ Format notes:
 - A `settings.txt` block per run logging **everything**: checkpoint, sampler, clip skip, whether prompt weighting was active, LoRA files and weights, active embeddings, blending / hires / ControlNet state, sizes, steps, CFG, and every seed — so any picture can be reproduced.
 - Stop button on every tab, Star batch (copies the last batch into `images_out/favorites/`, never overwrites), Unload models, and a session history (last 10) — picking an entry restores its prompt *and* its settings.
 - Memory is freed between images inside a run, so long queues don't creep upward.
-- The VAE is held in float32 — the stock SDXL VAE is unreliable in float16 and can produce black or blotchy pictures. Everything else runs in float16.
+- Everything runs in float16, the VAE included. The built-in model swaps in the fp16-fix VAE (madebyollin/sdxl-vae-fp16-fix, a small extra download the first time it is used) — its weights are rescaled so float16 decoding stays clean, where the stock VAE can overflow into black or blotchy pictures. Single-file checkpoints keep their own baked VAE, also in float16.
 - The safety checker is not loaded — you're responsible for what you generate, same as A1111.
 
 ## Animation tab
